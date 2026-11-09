@@ -22,3 +22,16 @@ portadas/<ID>.jpg   captura 1600×900, menos de 200 KB
 4. Abrir `<sitio>/<ID>/` y comprobar que carga y que arranca el recorrido automático.
 
 La galería no se toca: se arma sola a partir de `modelos.json`.
+
+## Publicación
+
+Cada push a `main` dispara la GitHub Action `publicar-en-teskel.yml`:
+
+1. Valida que cada modelo de `modelos.json` tenga su `index.html` y su portada.
+2. Pide a Spacefast un remoto de push temporal (15 min) para el Space `teskel`.
+3. Copia el contenido de este repo a la carpeta `teardown/` de teskel (sin `.github/` ni este README).
+4. Hace commit y push; Spacefast publica `teskel.online` con la galería en `/teardown/`.
+
+Necesita el secreto `SPACEFAST_TOKEN` (una API key de Spacefast) en
+Settings → Secrets and variables → Actions. Se puede volver a correr a mano desde
+la pestaña Actions → "Publicar en teskel.online/teardown" → Run workflow.
