@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teardown</title>
+<meta name="description" content="Obras desarmadas capa por capa. Simuladores 3D interactivos armados a partir de los planos.">
+<style>
+  :root {
+    --fondo: #ece7df;
+    --panel: #fbf9f5;
+    --borde: #e7dfd3;
+    --texto: #2a2521;
+    --texto-2: #958a7c;
+    --acento: #e3562a;
+    --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--fondo);
+    color: var(--texto);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+    overflow-x: hidden;
+  }
+  .contenedor { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+
+  /* Encabezado */
+  header { padding: 48px 0 24px; }
+  .etiqueta {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  h1 {
+    margin: 8px 0 4px;
+    font-size: clamp(36px, 7vw, 56px);
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.05;
+  }
+  .bajada { margin: 0; color: var(--texto-2); font-size: 18px; }
+
+  /* Barra de filtros */
+  .barra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 0;
+    border-top: 1px solid var(--borde);
+    border-bottom: 1px solid var(--borde);
+    margin-bottom: 24px;
+  }
+  .filtros { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
+  .filtro {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--texto);
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 999px;
+    padding: 7px 12px;
+    cursor: pointer;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .filtro:hover { border-color: var(--acento); }
+  .filtro[aria-pressed="true"] { background: var(--acento); border-color: var(--acento); color: #fff; }
+  .filtro:focus-visible, .tarjeta a:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+  .conteo { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--texto-2); }
+
+  /* Grilla */
+  .grilla {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+    gap: 20px;
+  }
+  .tarjeta {
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    overflow: hidden;
+    min-width: 0;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .tarjeta a, .tarjeta .cuerpo-sin-enlace { display: block; color: inherit; text-decoration: none; }
+  .tarjeta.publicado:hover { border-color: var(--acento); transform: translateY(-2px); }
+  .tarjeta.preparacion { opacity: .55; }
+  .portada {
+    aspect-ratio: 16 / 9;
+    background: var(--borde);
+    border-bottom: 1px solid var(--borde);
+    position: relative;
+    overflow: hidden;
+  }
+  .portada img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .portada .sin-imagen {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  .info { padding: 16px 18px 18px; }
+  .info .fila {
+    display: flex; justify-content: space-between; gap: 12px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  .info .fila span { min-width: 0; overflow-wrap: anywhere; }
+  .info h2 { margin: 10px 0 2px; font-size: 20px; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; }
+  .info p { margin: 0; color: var(--texto-2); font-size: 14px; overflow-wrap: anywhere; }
+  .datos {
+    margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--borde);
+    display: flex; flex-wrap: wrap; gap: 6px 16px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  .datos b { color: var(--texto); font-weight: 500; }
+  .estado-activo { color: var(--acento); }
+
+  /* Mensajes */
+  .aviso {
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .aviso h2 { margin: 0 0 6px; font-size: 18px; }
+  .aviso p { margin: 0; color: var(--texto-2); }
+  .aviso code { font-family: var(--mono); font-size: 13px; color: var(--texto); }
+
+  footer { padding: 40px 0 48px; }
+
+  @media (max-width: 480px) {
+    header { padding: 32px 0 20px; }
+    .bajada { font-size: 16px; }
+    .grilla { gap: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tarjeta { transition: none; }
+    .tarjeta.publicado:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="contenedor">
+    <header>
+      <div class="etiqueta">Galería de simuladores 3D</div>
+      <h1>Teardown</h1>
+      <p class="bajada">Obras desarmadas capa por capa</p>
+    </header>
+
+    <div class="barra" id="barra" hidden>
+      <div class="filtros" id="filtros" role="group" aria-label="Filtrar por tipo"></div>
+      <div class="conteo" id="conteo" aria-live="polite"></div>
+    </div>
+
+    <main id="contenido">
+      <p class="conteo">Cargando modelos…</p>
+    </main>
+
+    <footer>
+      <div class="etiqueta">Orden: de la más nueva a la más vieja</div>
+    </footer>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  var contenido = document.getElementById("contenido");
+  var barra = document.getElementById("barra");
+  var filtrosEl = document.getElementById("filtros");
+  var conteoEl = document.getElementById("conteo");
+
+  var TODOS = "Todos";
+  var modelos = [];
+  var tipoActivo = TODOS;
+
+  function esc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function formatearFecha(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+    return m ? m[3] + "/" + m[2] + "/" + m[1] : "";
+  }
+
+  function idValido(id) {
+    return /^[A-Za-z0-9_-]+$/.test(String(id || ""));
+  }
+
+  function mostrarError(detalle) {
+    barra.hidden = true;
+    contenido.innerHTML =
+      '<div class="aviso" role="alert">' +
+        "<h2>No se pudo leer la lista de modelos</h2>" +
+        "<p>Revisá el archivo <code>modelos.json</code>: tiene que estar en la misma carpeta que esta página y ser un JSON válido.</p>" +
+        (detalle ? '<p style="margin-top:8px"><code>' + esc(detalle) + "</code></p>" : "") +
+      "</div>";
+  }
+
+  function tarjeta(m) {
+    var publicado = m.estado === "publicado";
+    var fecha = formatearFecha(m.fecha);
+    var etapas = Number(m.etapas) > 0 ? '<span><b>' + esc(m.etapas) + "</b> etapas</span>" : "";
+    var estado = publicado
+      ? '<span class="estado-activo">Abrir modelo</span>'
+      : "<span>En preparación</span>";
+
+    var portada = m.portada
+      ? '<img src="' + esc(m.portada) + '" alt="" loading="lazy" decoding="async" width="1600" height="900">'
+      : "";
+
+    var interior =
+      '<div class="portada">' +
+        '<div class="sin-imagen">' + esc(m.id) + "</div>" +
+        portada +
+      "</div>" +
+      '<div class="info">' +
+        '<div class="fila"><span>' + esc(m.tipo) + "</span><span>" + esc(fecha) + "</span></div>" +
+        "<h2>" + esc(m.titulo) + "</h2>" +
+        (m.subtitulo ? "<p>" + esc(m.subtitulo) + "</p>" : "") +
+        '<div class="datos"><span>ID <b>' + esc(m.id) + "</b></span>" + etapas + estado + "</div>" +
+      "</div>";
+
+    if (publicado) {
+      return '<li class="tarjeta publicado"><a href="./' + encodeURIComponent(m.id) + '/" aria-label="' +
+        esc(m.titulo) + '">' + interior + "</a></li>";
+    }
+    return '<li class="tarjeta preparacion" aria-disabled="true"><div class="cuerpo-sin-enlace">' + interior + "</div></li>";
+  }
+
+  function render() {
+    var lista = modelos.filter(function (m) { return tipoActivo === TODOS || m.tipo === tipoActivo; });
+
+    var botones = filtrosEl.querySelectorAll(".filtro");
+    for (var i = 0; i < botones.length; i++) {
+      botones[i].setAttribute("aria-pressed", botones[i].getAttribute("data-tipo") === tipoActivo ? "true" : "false");
+    }
+
+    conteoEl.textContent = lista.length + (lista.length === 1 ? " modelo" : " modelos");
+
+    if (!lista.length) {
+      contenido.innerHTML = '<div class="aviso"><p>No hay modelos de este tipo todavía.</p></div>';
+      return;
+    }
+    contenido.innerHTML = '<ul class="grilla">' + lista.map(tarjeta).join("") + "</ul>";
+
+    // Si una portada no existe, queda el ID sobre el fondo en lugar de una imagen rota.
+    var imgs = contenido.querySelectorAll(".portada img");
+    for (var j = 0; j < imgs.length; j++) {
+      imgs[j].addEventListener("error", function () { this.remove(); });
+    }
+  }
+
+  function armarFiltros() {
+    var tipos = [];
+    modelos.forEach(function (m) { if (m.tipo && tipos.indexOf(m.tipo) === -1) tipos.push(m.tipo); });
+    tipos.sort(function (a, b) { return a.localeCompare(b, "es"); });
+
+    filtrosEl.innerHTML = [TODOS].concat(tipos).map(function (t) {
+      return '<button type="button" class="filtro" data-tipo="' + esc(t) + '" aria-pressed="false">' + esc(t) + "</button>";
+    }).join("");
+
+    filtrosEl.addEventListener("click", function (e) {
+      var b = e.target.closest(".filtro");
+      if (!b) return;
+      tipoActivo = b.getAttribute("data-tipo");
+      render();
+    });
+    barra.hidden = false;
+  }
+
+  fetch("modelos.json", { cache: "no-cache" })
+    .then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status + " al pedir modelos.json");
+      return r.json();
+    })
+    .then(function (datos) {
+      if (!Array.isArray(datos)) throw new Error("modelos.json tiene que ser una lista");
+      modelos = datos
+        .filter(function (m) { return m && idValido(m.id) && m.titulo; })
+        .sort(function (a, b) { return String(b.fecha || "").localeCompare(String(a.fecha || "")); });
+      armarFiltros();
+      render();
+    })
+    .catch(function (err) { mostrarError(err && err.message); });
+})();
+</script>
+</body>
+</html>

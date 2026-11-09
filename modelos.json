@@ -1,0 +1,14 @@
+[
+  {
+    "id": "10A",
+    "titulo": "Dúplex 10A",
+    "subtitulo": "Pisos 9 y 10 · construcción por capas",
+    "tipo": "Vivienda en dúplex",
+    "etapas": 7,
+    "fuente": "Planos de albañilería 04-01/11 y 04-01/12, esc. 1:50, y locales sanitarios 00-06",
+    "supuestos": "Losa 15 cm · escalera recta de 15 alzadas · artefactos esquemáticos",
+    "fecha": "2026-11-09",
+    "portada": "portadas/10A.jpg",
+    "estado": "publicado"
+  }
+]
