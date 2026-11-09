@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Teardown</title>
+<script>
+  // Si se entra por /teardown (sin barra final), las rutas relativas apuntarían a la raíz del sitio.
+  (function () {
+    var p = location.pathname;
+    if (p.slice(-1) !== "/" && !/\.html?$/i.test(p)) location.replace(p + "/" + location.search + location.hash);
+  })();
+</script>
 <meta name="description" content="Obras desarmadas capa por capa. Simuladores 3D interactivos armados a partir de los planos.">
 <style>
   :root {
